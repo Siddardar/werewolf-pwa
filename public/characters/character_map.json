@@ -1,0 +1,17 @@
+{
+    "werewolf": {
+        "name": "Werewolf",
+        "description": "Take over the Village",
+        "image": "/characters/werewolf.png"
+    },
+    "villager": {
+        "name": "Villager",
+        "description": "Defend the Village",
+        "image": "/characters/villager.png"
+    },
+    "doctor": {
+        "name": "Doctor",
+        "description": "Heal the innocent",
+        "image": "/characters/doctor.png"
+    }
+}
