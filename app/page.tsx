@@ -16,7 +16,7 @@ export default function Home() {
   }
 
   return (
-    <div className="h-screen bg-gray-50 flex flex-col items-center justify-center px-4 pt-safe-top">
+    <div className="bg-gray-50 flex flex-col items-center justify-center px-4" style={{ height: '100dvh' }}>
       <div className="w-full max-w-md mx-auto space-y-8">
         
         {/* Logo/Icon */}
@@ -26,13 +26,13 @@ export default function Home() {
             alt="Werewolf Icon" 
             width={225} 
             height={225}
-            className="mx-auto mb-4"
+            className="mx-auto"
             priority
           />
         </div>
         
         {/* Title */}
-        <div className="text-center space-y-2">
+        <div className="text-center">
           <h1 className="text-4xl font-bold text-black tracking-wide">
             WEREWOLF
           </h1>
@@ -42,7 +42,7 @@ export default function Home() {
         </div>
         
         {/* Buttons */}
-        <div className="space-y-4 pt-8 flex flex-col items-center">
+        <div className="space-y-4 flex flex-col items-center">
           <MainButton 
             variant="black" 
             onClick={handleCreateGame}
