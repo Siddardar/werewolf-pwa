@@ -20,10 +20,18 @@ body {
 }
 
 /* Add safe area support for iOS */
-html {
+html, body {
+  margin: 0;
+  padding: 0;
   height: 100vh;
   height: 100dvh; /* Dynamic viewport height for mobile */
   background: var(--background);
+}
+
+body {
+  /* Apply safe area insets for notch */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .pt-safe-top {
