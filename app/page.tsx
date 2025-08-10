@@ -2,17 +2,21 @@
 
 import Image from "next/image";
 import MainButton from "@/components/main-button";
+import { useRouter } from "next/navigation";
 
 
 export default function Home() {
+  const router = useRouter();
   const WEREWOLF_ICON = "/characters/werewolf.png";
 
   const handleCreateGame = () => {
     console.log("Create Game button clicked");
+    router.push('/create-game');  
   }
 
   const handleJoinGame = () => {
     console.log("Join Game button clicked");
+    router.push('/join-game');
   }
 
   return (
@@ -46,7 +50,8 @@ export default function Home() {
           <MainButton 
             variant="black" 
             onClick={handleCreateGame}
-            className="w-48"
+            className="w-64"
+            
           >
             CREATE GAME
           </MainButton>
@@ -54,7 +59,7 @@ export default function Home() {
           <MainButton 
             variant="white" 
             onClick={handleJoinGame}
-            className="w-48"
+            className="w-64"
           >
             JOIN GAME
           </MainButton>

@@ -13,7 +13,7 @@ const MainButton: React.FC<MainButtonProps> = ({
   className = "",
   ...props 
 }) => {
-  const baseClasses = "px-8 py-4 font-bold text-sm tracking-wider uppercase transition-all duration-200 border-2";
+  const baseClasses = "px-18 py-4 font-bold text-sm tracking-wider uppercase transition-all duration-200 border-2 whitespace-nowrap flex items-center justify-center text-center";
   
   const variantClasses: Record<'black' | 'white', string> = {
     black: disabled 
