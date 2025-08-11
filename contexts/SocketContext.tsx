@@ -16,7 +16,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Connect to Socket.IO server 
-    const socketInstance = io(process.env.SERVER || 'http://localhost:3001');
+    const socketInstance = io(process.env.NEXT_PUBLIC_SERVER || 'http://localhost:3001');
 
     socketInstance.on('connect', () => {
       console.log('Connected to socket server');
