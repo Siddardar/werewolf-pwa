@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Card from "@/components/card";
 import MainButton from "@/components/main-button";
 
-import { GamePhase, GameSettings, GameState, Player } from "@/types/game";
+import { GamePhase, GameSettings, GameState, Player, Role } from "@/types/game";
 import { GameResults } from "../game-over/page";
 
 import { useSocket } from "@/contexts/SocketContext";
@@ -36,14 +36,13 @@ export default function GamePage() {
     const [timeLeft, setTimeLeft] = useState(0);
     const [isTimerRunning, setIsTimerRunning] = useState(true);
     
-    // Player data from backend
-    // const [currentPlayer, setCurrentPlayer] = useState<Player>();
-    // const [players, setPlayers] = useState<Player[]>([]);
-
     // Day phase state
     const [selectedVote, setSelectedVote] = useState<string | null>(null);
     const [hasVoted, setHasVoted] = useState(false);
-    
+
+    // Special messages for seer
+    const [seerMessage, setSeerMessage] = useState<string | null>(null);
+
     // Local timer for display (syncs with backend)
     useEffect(() => {
         if (!isTimerRunning || timeLeft <= 0) return;
@@ -61,6 +60,14 @@ export default function GamePage() {
         settings: GameSettings,
         gameState: GameState,
         currentPhase: GamePhase,
+        timeLeft?: number
+    }
+
+    type ReconnectionInfo = {
+        player: Player,
+        players: Player[],
+        currentPhase: GamePhase,
+        timeLeft: number
     }
 
     useEffect(() => {
@@ -75,9 +82,48 @@ export default function GamePage() {
             setLoading(false);
         }
 
-        const handleRoomInfoFailure = (error: any) => {
-            console.error('Failed to get room info:', error);
-            router.push('/join-game');
+        const handleReconnectionSuccess = (data: ReconnectionInfo) => {
+            setGame({
+                currentPlayer: data.player,
+                players: data.players,
+                currentPhase: data.currentPhase,
+            });
+            
+            setTimeLeft(data.timeLeft);
+            
+
+            setLoading(false);
+        }
+
+        const handleReconnectionFailed = (error: any) => {
+            console.error('Reconnection failed:', error);
+            setLoading(false);
+            router.push('/join-game')
+        }
+
+        const handleRoomInfoFailure = (error: {message: string}) => {
+            console.log('Failed to get room info:', error);
+
+            const savedData = localStorage.getItem('gameSession')
+            if (!savedData) {
+                router.push('/join-game')
+                return
+            }
+
+            const { userName, roomCode } = JSON.parse(savedData);
+
+            if (error.message == "Player not found") {
+                // Handle reconnection logic
+                console.log('Player is not connected, attempting reconnection...');
+                socket.emit('reconnect-to-room', {
+                    userName: userName,
+                    roomCode: roomCode
+                });
+                return;
+            
+            } else {
+                router.push('/join-game');
+            }
         }
 
         // Backend timer event handlers
@@ -144,11 +190,21 @@ export default function GamePage() {
             router.push(`/game-room/${roomCode}/game-over`);
         }
 
-    
+        // Seer Message handler
+        const handleSeerMessage = (data: { message: string }) => {
+            setSeerMessage(data.message);
+        };
+
+        socket.on('seer-message', handleSeerMessage);
+
         // Register event listeners
         socket.on('get-room-info-success', handleRoomInfo)
         socket.on('get-room-info-failure', handleRoomInfoFailure);
         
+        // Reconnection handlers
+        socket.on('reconnection-success', handleReconnectionSuccess)
+        socket.on('reconnection-failed', handleReconnectionFailed);
+
         // Game events
         socket.on('start-game-success', handleStartGameSuccess);
         
@@ -174,11 +230,16 @@ export default function GamePage() {
         socket.emit('get-room-info', { roomCode })
 
         return () => {
+            socket.off('seer-message', handleSeerMessage);
+
             socket.off('get-room-info-success', handleRoomInfo)
             socket.off('get-room-info-failure', handleRoomInfoFailure)
             
             socket.off('start-game-success', handleStartGameSuccess);
-            
+
+            socket.off('reconnection-success', handleReconnectionSuccess);
+            socket.off('reconnection-failed', handleReconnectionFailed);
+
             socket.off('game-timer-started', handleGameTimerStarted);
             socket.off('timer-update', handleTimerUpdate);
             socket.off('phase-changed', handlePhaseChanged);
@@ -476,6 +537,11 @@ export default function GamePage() {
                                 <p className="text-green-400 text-sm">
                                     You used your {currentPlayer.role} ability on {game.players.find(p => p.id === selectedVote)?.name}
                                 </p>
+                                {currentPlayer.role === 'seer' && seerMessage && (
+                                    <p className="text-green-400 text-md font-bold">
+                                        Seer Message: {seerMessage}
+                                    </p>
+                                )}
                                 <p className="text-green-500 text-xs mt-1">
                                     Waiting for other players...
                                 </p>

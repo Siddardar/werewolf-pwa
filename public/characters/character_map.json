@@ -13,5 +13,10 @@
         "name": "Doctor",
         "description": "Heal the innocent",
         "image": "/characters/doctor.png"
+    },
+    "seer": {
+        "name": "Seer",
+        "description": "See the true nature of a player",
+        "image": "/characters/seer.png"
     }
 }
